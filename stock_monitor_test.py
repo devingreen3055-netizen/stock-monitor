@@ -11,14 +11,13 @@ from datetime import datetime
 FEISHU_WEBHOOK = os.environ.get("FEISHU_WEBHOOK", "")
 
 # 测试股票列表
-TEST_STOCKS = [
-    ["sh600519", "贵州茅台"],
-    ["sz000858", "五粮液"],
-    ["sh601318", "中国平安"],
-    ["sh600036", "招商银行"],
-    ["sz000002", "万科A"],
+[
+    ["sh600343", "航天动力", None],      # 价格设为None表示使用当日开盘价
+    ["sz000547", "航天发展", None],
+    ["sh601698", "中国卫通", None],
+    ["sh603993", "洛阳钼业", None],
+    ["sh601138", "工业富联", None],
 ]
-
 def send_feishu_message(content):
     """发送消息到飞书"""
     if not FEISHU_WEBHOOK:
