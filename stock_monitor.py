@@ -57,17 +57,67 @@ def send_feishu_message(content):
         return False
 
 # ====== 主逻辑 ======
+# 在文件最底部，找到 if __name__ == "__main__": 部分
+# 修改后的主程序如下：
+
 if __name__ == "__main__":
-    print(f"===== 股票监控启动时间：{datetime.now()} =====")
+    print("=" * 50)
+    print(f"股票监控程序启动 - {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    print(f"监控股票: {STOCK_CODE}, 目标价格: {TARGET_PRICE}")
+    print("=" * 50)
+    
+    # 获取当前价格
     current_price = get_price()
+    
     if current_price is None:
-        print("[错误] 无法获取股价，监控终止")
-    else:
-        # 检查是否达到目标价
-        if current_price >= TARGET_PRICE:
-            message = f"【股票监控提醒】股票 {STOCK_CODE} 当前价格 {current_price}，已达到目标价 {TARGET_PRICE}！"
-            print(f"[触发] {message}")
-            send_feishu_message(message)
+        print("❌ 无法获取股价，程序退出")
+        # 测试：即使获取失败，也发送测试消息
+        message = f"🔧 飞书消息发送测试（当前无法获取股价）\n" \
+                 f"时间: {datetime.now().strftime('%H:%M:%S')}\n" \
+                 f"股票: {STOCK_CODE}\n\n" \
+                 f"✅ 此消息仅用于测试飞书推送功能是否正常"
+        print("测试模式：尝试发送飞书测试消息...")
+        if send_feishu_message(message):
+            print("✅ 测试消息发送完成")
         else:
-            print(f"[正常] 当前价格 {current_price} < 目标价 {TARGET_PRICE}，暂不提醒")
-    print("===== 监控结束 =====")
+            print("❌ 测试消息发送失败")
+        exit(1)
+    
+    print(f"当前价格: {current_price:.2f} 元")
+    print(f"目标价格: {TARGET_PRICE:.2f} 元")
+    
+    # 修改这里：强制触发消息发送（用于测试）
+    # 无论股价是否达标，都发送一条测试消息
+    test_mode = True  # 设为True强制发送测试消息
+    
+    if test_mode or current_price >= TARGET_PRICE:
+        if test_mode:
+            profit_rate = 5.5  # 模拟收益率
+            message = f"🔧 飞书消息发送测试\n\n" \
+                     f"股票代码: {STOCK_CODE}\n" \
+                     f"模拟价格: {current_price:.2f} 元\n" \
+                     f"模拟目标: {TARGET_PRICE:.2f} 元\n" \
+                     f"模拟收益率: +{profit_rate:.2f}%\n\n" \
+                     f"⏰ 时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n" \
+                     f"📱 此消息仅用于测试推送功能是否正常"
+            print("🔄 测试模式：强制发送测试消息...")
+        else:
+            profit_rate = ((current_price - TARGET_PRICE) / TARGET_PRICE * 100)
+            message = f"🚨 股价提醒\n\n" \
+                     f"股票代码: {STOCK_CODE}\n" \
+                     f"当前价格: {current_price:.2f} 元\n" \
+                     f"目标价格: {TARGET_PRICE:.2f} 元\n" \
+                     f"收益率: +{profit_rate:.2f}%\n\n" \
+                     f"⏰ 时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+            print("🎯 达到目标价！准备发送提醒...")
+        
+        # 发送飞书消息
+        if send_feishu_message(message):
+            print("✅ 消息发送完成")
+        else:
+            print("❌ 消息发送失败")
+    else:
+        print(f"📉 未达到目标价，还差 {TARGET_PRICE - current_price:.2f} 元")
+    
+    print("=" * 50)
+    print("程序执行完成")
